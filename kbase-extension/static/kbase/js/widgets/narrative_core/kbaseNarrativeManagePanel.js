@@ -302,10 +302,12 @@ define([
             if (b.error) {
                 return -1;
             }
-            if (a.nar_info[3] > b.nar_info[3])
+            if (a.nar_info[3] > b.nar_info[3]) {
                 return -1; // sort by date
-            if (a.nar_info[3] < b.nar_info[3])
+            }
+            if (a.nar_info[3] < b.nar_info[3]) {
                 return 1;  // sort by date
+            }
             return 0;
         },
 
@@ -810,21 +812,6 @@ define([
                     $dataCol.append($('<span>')
                         .addClass('kb-data-list-narinfo')
                         .append(summary)
-                        // REMOVE MORE INFO: needs a rethink, because these methods have versions now....
-                        /*.click(
-                            function () {
-                                var opened = self.toggleInteractionPanel($interactionPanel, 'info');
-                                if (!opened) {
-                                    return;
-                                }
-
-                                var $infoDiv = $('<div>')
-                                    .append(self.getNarContent(data.nar_info));
-
-
-                                // var $infoDiv = self.getNarContent(data.nar_info);
-                                self.setInteractionPanel($interactionPanel, 'Narrative Info', $infoDiv);
-                            })*/
                         .append('<br>'));
                 }
                 $dataCol.append($('<span>').addClass('kb-data-list-type').append(TimeFormat.getTimeStampStr(data.nar_info[3], true)));
