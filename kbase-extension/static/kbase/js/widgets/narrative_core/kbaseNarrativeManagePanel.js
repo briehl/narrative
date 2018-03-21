@@ -9,7 +9,6 @@ define([
     'jquery',
     'base/js/namespace',
     'narrativeConfig',
-    'narrativeManager',
     'util/display',
     'bluebird',
     'kbwidget',
@@ -22,7 +21,6 @@ define([
     $,
     Jupyter,
     Config,
-    NarrativeManager,
     DisplayUtil,
     Promise,
     KBWidget,
@@ -92,7 +90,6 @@ define([
         my_user_id: null,
         loggedInCallback: function (event, auth) {
             this.ws = new Workspace(this.options.ws_url, auth);
-            this.manager = new NarrativeManager({ws_url: this.options.ws_url, nms_url: this.options.nms_url}, auth);
             this.serviceClient = new GenericClient(Config.url('service_wizard'), auth);
 
             this.my_user_id = auth.user_id;
@@ -101,7 +98,6 @@ define([
         },
         loggedOutCallback: function () {
             this.ws = null;
-            this.manager = null;
             this.my_user_id = null;
             return this;
         },
@@ -451,7 +447,7 @@ define([
                         // should only get here if it was a valid WS/Nar combo
                         var ws = $selectWsContainer.val();
                         var nar = $selectNarContainer.val();
-                        $(this).prop('disabled', true).empty().append("please wait...");
+                        $(this).prop('disabled', true).empty().append('please wait...');
                         // should probably be moved to NarrativeManager
                         self.ws.alter_workspace_metadata(
                             {
@@ -605,7 +601,7 @@ define([
                                             .append($('<td>').append(TimeFormat.getTimeStampStr(history[k][3], true) + ' by ' + history[k][5] + summary))
                                             .append($('<td>').append($('<span>').css({margin: '4px'}).addClass('fa fa-info pull-right'))
                                                 .tooltip({title: history[k][2] + '<br>' + history[k][10].name + '<br>' + history[k][8] + '<br>' + history[k][9] + ' bytes', container: 'body', html: true, placement: 'bottom'}))
-                                            );
+                                        );
                                     }
                                     self.setInteractionPanel($interactionPanel, 'Version History', $tbl);
                                 },
