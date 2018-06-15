@@ -40,9 +40,9 @@ define([
     'narrativeTour',
     'kb_service/utils',
     'widgets/loadingWidget',
-
+    'util/appCitations',
     // for effect
-    'bootstrap',
+    'bootstrap'
 
 ], function (
     $,
@@ -73,7 +73,8 @@ define([
     Runtime,
     Tour,
     ServiceUtils,
-    LoadingWidget
+    LoadingWidget,
+    AppCitations
 ) {
     'use strict';
 
@@ -149,6 +150,13 @@ define([
 
         //Jupyter.keyboard_manager.disable();
         return this;
+    };
+
+    Narrative.prototype.showAppCitations = function () {
+        if (!this.appCitations) {
+            this.appCitations = new AppCitations();
+        }
+        this.appCitations.show();
     };
 
     Narrative.prototype.isLoaded = function () {

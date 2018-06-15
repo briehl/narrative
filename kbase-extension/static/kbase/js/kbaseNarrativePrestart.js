@@ -88,6 +88,10 @@ define(
             $('#kb-side-toggle-in').click(function() {
                 Jupyter.narrative.toggleSidePanel();
             });
+
+            $('#kb-cite-btn').click(function() {
+                Jupyter.narrative.showAppCitations();
+            });
         }
 
         function loadGlobals() {
