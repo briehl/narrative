@@ -27,6 +27,11 @@ define(
             });
 
             // bind menubar buttons
+            $('#kb-joke-btn').click(() => {
+                require(['util/joke'], (Joke) => {
+                    Joke.tell();
+                });
+            });
             $('#kb-save-btn').click(function() {
                 if (Jupyter && Jupyter.notebook) {
                     var narrName = Jupyter.notebook.notebook_name;
