@@ -42,10 +42,12 @@ NOTEBOOK_VERSION=5.7.4
 IPYWIDGETS_VERSION=7.4.2
 
 SCRIPT_TGT="kbase-narrative"
+SCRIPT_TGT_LAB="kbase-narrative-lab"
 
 CUR_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 NARRATIVE_ROOT_DIR=$CUR_DIR/..
 SCRIPT_TEMPLATE=$CUR_DIR/start_local_narrative.tmpl
+SCRIPT_TEMPLATE_LAB=$CUR_DIR/start_local_narrative_lab.tmpl
 
 # clear log
 logfile=`pwd`/install.log
@@ -162,6 +164,22 @@ then
     chmod 0755 $SCRIPT_TGT
     log "Putting new $SCRIPT_TGT command under $d"
     /bin/mv $SCRIPT_TGT $d
+
+    i=0
+    while read s
+        do
+            echo $s
+            if [ $i = 0 ]
+                then
+                echo d=`pwd`
+                echo e=$(dirname `which python`)
+                i=1
+            fi
+    done < $SCRIPT_TEMPLATE_LAB > $SCRIPT_TGT_LAB
+    chmod 0755 $SCRIPT_TGT_LAB
+    log "Putting new $SCRIPT_TGT_LAB command under $d"
+    /bin/mv $SCRIPT_TGT_LAB $d
+
     log "Done installing scripts"
 
     log "Installing nbextensions"

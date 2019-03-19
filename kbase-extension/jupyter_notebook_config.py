@@ -17,6 +17,8 @@ c = get_config()
 # c.NotebookApp.jinja_environment_options = {}
 
 # The IP address the notebook server will listen on.
+c.NotebookApp.token = ''
+c.NotebookApp.password = ''
 c.NotebookApp.ip = 'localhost'
 
 # DEPRECATED use base_url
@@ -29,7 +31,10 @@ c.NotebookApp.ip = 'localhost'
 # Python modules to load as notebook server extensions. This is an experimental
 # API, and may change in future releases.
 # c.NotebookApp.server_extensions = []
-c.NotebookApp.server_extensions=['biokbase.narrative.handlers.narrativehandler']
+c.NotebookApp.nbserver_extensions={
+    'biokbase.narrative.handlers.narrativehandler': True,
+    'biokbase.narrative.handlers.authhandlers': True
+}
 
 # The random bytes used to secure cookies. By default this is a new random
 # number every time you start the Notebook. Set it to a value in a config file

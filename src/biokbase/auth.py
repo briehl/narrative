@@ -75,7 +75,7 @@ def new_session(token):
     Initializes a new session from the given token, storing information
     in kbase_env.
     """
-    init_session_env(get_user_info(token))
+    init_session_env(get_user_info(token), None)
 
 
 def get_agent_token(login_token, token_name="NarrativeAgent"):

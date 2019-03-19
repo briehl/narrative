@@ -191,6 +191,8 @@ class KBaseWSManager(KBaseWSManagerMixin, ContentsManager):
         if the path isn't parseable, this raises a 404 with the invalid path.
         """
         path = path.strip('/')
+        if path is None:
+            raise HTTPError(404, "Empty Narrative path")
         m = self.path_regex.match(path)
         if m is None:
             raise HTTPError(404, "Invalid Narrative path {}".format(path))
@@ -209,8 +211,9 @@ class KBaseWSManager(KBaseWSManagerMixin, ContentsManager):
         """Get the model of a file or directory with or without content."""
         path = path.strip('/')
         model = base_model(path, path)
+        print("path: {}, content: {}, type: {}, format: {}".format(path, content, type, format))
         try:
-            if self.exists(path) and type != 'directory':
+            if len(path) > 0 and self.exists(path) and type != 'directory':
             #It's a narrative object, so try to fetch it.
                 ref = self._parse_path(path)
                 if not ref:
@@ -237,8 +240,9 @@ class KBaseWSManager(KBaseWSManagerMixin, ContentsManager):
         if not path or type == 'directory':
             #if it's the empty string, look up all narratives, treat them as a dir
             self.log.info('Getting narrative list')
-            model['type'] = type
+            model['type'] = 'directory'
             model['format'] = 'json'
+            model['mimetype'] = None
             if content:
                 contents = []
                 nar_list = self.list_narratives()

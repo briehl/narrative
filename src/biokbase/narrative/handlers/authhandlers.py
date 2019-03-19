@@ -14,7 +14,8 @@ import logging
 from biokbase.auth import (
     get_user_info,
     init_session_env,
-    set_environ_token
+    set_environ_token,
+    new_session
 )
 
 """
@@ -64,12 +65,6 @@ class KBaseLoginHandler(LoginHandler):
                 app_log.error("Unable to get user information from authentication token!")
                 raise
 
-            # re-enable if token logging info is needed.
-            # if app_log.isEnabledFor(logging.DEBUG):
-            #     app_log.debug("kbase cookie = {}".format(cookie_val))
-            #     app_log.debug("KBaseLoginHandler.get: user_id={uid} token={tok}"
-            #                   .format(uid=auth_info.get('user', 'none'),
-            #                           tok=token))
             init_session_env(auth_info, client_ip)
             self.current_user = kbase_env.user
             log_event(g_log, 'session_start', {'user': kbase_env.user, 'user_agent': ua})
@@ -125,3 +120,13 @@ class KBaseLogoutHandler(LogoutHandler):
         log_event(g_log, 'session_close', {'user': user, 'user_agent': ua})
 
         self.write(self.render_template('logout.html', message={'info': 'Successfully logged out'}))
+
+
+def load_jupyter_server_extension(nb_server_app):
+    app_log.info('Loaded server extension')
+    if 'KB_AUTH_TOKEN' in os.environ:
+        app_log.info("Found KBase auth token, initializing environment.")
+        new_session(os.environ['KB_AUTH_TOKEN'])
+        app_log.info("Session initialized for user {}".format(kbase_env.user))
+    else:
+        app_log.info("KBase auth not found, starting anonymous session.")
