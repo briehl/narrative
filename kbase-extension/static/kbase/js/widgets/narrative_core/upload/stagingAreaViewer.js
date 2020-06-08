@@ -154,7 +154,6 @@ define([
         renderFileHeader: function () {
             this.$elem.append(this.ftpFileHeaderTmpl({userInfo: this.userInfo}));
 
-
             // Set up the link to the web upload app.
             this.$elem.find('.web_upload_div').click(() => {
                 this.initImportApp('web_upload');
@@ -182,16 +181,16 @@ define([
         },
 
         renderPath: function () {
-            var splitPath = this.path;
+            let splitPath = this.path;
             if (splitPath.startsWith('/')) {
                 splitPath = splitPath.substring(1);
             }
             // the staging service doesn't want the username as part of the path, but we still want to display it to the user for navigation purposes
             splitPath = splitPath.split('/').filter(p => p.length);
             splitPath.unshift(this.userInfo.user);
-            var pathTerms = [];
-            for (var i = 0; i < splitPath.length; i++) {
-                var prevPath = '';
+            const pathTerms = [];
+            for (let i = 0; i < splitPath.length; i++) {
+                let prevPath = '';
                 if (i > 0) {
                     prevPath = pathTerms[i - 1].subpath;
                 }
@@ -363,7 +362,11 @@ define([
 
 
                     $('td:eq(0)', nRow).find('button[data-name]').off('click').on('click', e => {
-                        this.updatePathFn(this.path += '/' + $(e.currentTarget).data().name);
+                        let updatedPath = '/' + $(e.currentTarget).data().name;
+                        // if (this.path !== '/') {
+                        updatedPath = this.path + updatedPath;
+                        // }
+                        this.updatePathFn(updatedPath);
                     });
 
                     $('td:eq(0)', nRow).find('i[data-caret]').off('click');
