@@ -29,7 +29,7 @@ define([
             this.node = node;
             this.dataSet = options.dataSet;
             this.$importStatus = options.$importStatus;
-            this.wsName = options.ws_name;
+            this.wsId = options.wsId;
             this.state = {
                 wsIdFilter: null,   // int for ws id
                 typeFilter: null,   // string for type to filter
@@ -430,7 +430,7 @@ define([
                 'NarrativeService.copy_object',
                 [{
                     ref: obj.ws_id + '/' + obj.obj_id,
-                    target_ws_name: this.wsName,
+                    target_ws_id: this.wsId,
                 }]
             );
         }

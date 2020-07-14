@@ -20,6 +20,7 @@ define([
     'kbwidget',
     'jquery',
     'underscore',
+    'common/runtime',
     'kbase/js/widgets/narrative_core/dataBrowser',
     'narrativeConfig',
     'base/js/namespace',
@@ -35,6 +36,7 @@ define([
     KBWidget,
     $,
     _,
+    Runtime,
     DataBrowser,
     Config,
     Jupyter,
@@ -103,6 +105,7 @@ define([
             this._super(options);
 
             this.ws_name = Jupyter.narrative.getWorkspaceName();
+            this.wsId = Runtime.make().workspaceId();
 
             var icons = Config.get('icons');
             this.data_icons = icons.data;
@@ -112,7 +115,6 @@ define([
             this.body().append($dataList);
             this.dataListWidget =
                 new kbaseNarrativeDataList($dataList, {
-                    ws_name: this.ws_name,
                     parentControlPanel: this,
                     slideTime: this.slideTime
                 });
@@ -148,7 +150,7 @@ define([
             $(document).on(
                 'workspaceQuery.Narrative', function (e, callback) {
                     if (callback) {
-                        callback(this.ws_name);
+                        callback(Jupyter.narrative.getWorkspaceName());
                     }
                 }.bind(this)
             );
@@ -455,8 +457,8 @@ define([
             var closeBtn = $('<button class="kb-default-btn pull-right">Close</button>').css({'margin': '10px'});
 
             // Setup the panels that are defined by widgets
-            this.mineTab = new DataBrowser(minePanel, {$importStatus: importStatus, ws_name: this.ws_name, dataSet: 'mine'});
-            this.sharedTab = new DataBrowser(sharedPanel, {$importStatus: importStatus, ws_name: this.ws_name, dataSet: 'shared'});
+            this.mineTab = new DataBrowser(minePanel, {$importStatus: importStatus, wsId: this.wsId, dataSet: 'mine'});
+            this.sharedTab = new DataBrowser(sharedPanel, {$importStatus: importStatus, wsId: this.wsId, dataSet: 'shared'});
             this.publicTab = new kbaseNarrativeSidePublicTab(publicPanel, {$importStatus: importStatus, ws_name: this.ws_name});
             this.exampleTab = new kbaseNarrativeExampleDataTab(examplePanel, {$importStatus: importStatus, ws_name: this.ws_name});
             if (Config.get('features').stagingDataViewer) {

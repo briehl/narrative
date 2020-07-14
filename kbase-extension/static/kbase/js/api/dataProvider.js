@@ -38,14 +38,15 @@ define([
             if (!this.cacheNeedsRefresh() && !forceUpdate) {
                 return Promise.resolve();
             }
+            const runtime = Runtime.make();
 
             let serviceClient = new GenericClient(
                 Config.url('service_wizard'),
-                {token: Runtime.make().authToken()}
+                {token: runtime.authToken()}
             );
 
             return serviceClient.sync_call('NarrativeService.list_objects_with_sets', [{
-                ws_name: Jupyter.narrative.getWorkspaceName(),
+                ws_id: runtime.workspaceId(),
                 includeMetadata: 1
             }])
                 .then(data => {

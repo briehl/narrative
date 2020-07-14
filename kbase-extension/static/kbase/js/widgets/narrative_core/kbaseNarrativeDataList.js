@@ -63,7 +63,7 @@ define([
         version: '1.1.0',
         options: {
             ws_name: null, // must be the WS name, not the WS Numeric ID
-
+            wsId: null,
             ws_url: Config.url('workspace'),
             lp_url: Config.url('landing_pages'),
             loadingImage: Config.get('loading_gif'),
@@ -75,6 +75,7 @@ define([
         mainListPanelHeight: '340px',
         refreshTimer: null,
         ws_name: null,
+        wsId: null,
         ws: null,
         wsLastUpdateTimestamp: null,
         maxWsObjId: null,
@@ -305,10 +306,6 @@ define([
                 _this.refresh();
             });
 
-            if (this.options.ws_name) {
-                this.ws_name = this.options.ws_name;
-            }
-
             this.wsId = this.runtime.workspaceId();
 
             return this;
@@ -379,14 +376,14 @@ define([
                 }.bind(this), this.options.refresh_interval); // check if there is new data every X ms
             }
 
-            if (!this.ws_name || !this.ws) {
+            if (!this.wsId || !this.ws) {
                 console.error('DataList: missing variable(s)');
-                console.error('ws_name: ' + this.ws_name);
+                console.error('wsId: ' + this.wsId);
                 console.error('ws: ' + this.ws);
                 return;
             }
             Promise.resolve(this.ws.get_workspace_info({
-                workspace: this.ws_name
+                id: this.wsId
             }))
                 .then(function (wsInfo) {
                     if (this.wsLastUpdateTimestamp !== wsInfo[3]) {
@@ -781,7 +778,7 @@ define([
                     e.stopPropagation();
                     $alertContainer.empty();
 
-                    if (_this.ws_name && _this.ws) {
+                    if (_this.wsId && _this.ws) {
                         _this.ws.get_object_history({ ref: objData.objectInfo.wsid + '/' + objData.objectInfo.id },
                             function (history) {
                                 $alertContainer.append($('<div>')
@@ -966,7 +963,7 @@ define([
                             .append('Rename')
                             .click(function () {
 
-                                if (_this.ws_name && _this.ws) {
+                                if (_this.wsId && _this.ws) {
                                     _this.ws.rename_object({
                                         obj: { ref: objData.objectInfo.wsid + '/' + objData.objectInfo.id },
                                         new_name: $newNameInput.val()
@@ -1021,7 +1018,7 @@ define([
                         .append($('<button>').addClass('kb-data-list-btn')
                             .append('Delete')
                             .click(function () {
-                                if (_this.ws_name && _this.ws) {
+                                if (_this.wsId && _this.ws) {
                                     _this.ws.rename_object({
                                         obj: { ref: objData.objectInfo.wsid + '/' + objData.objectInfo.id },
                                         new_name: objData.objectInfo.name.split('-deleted-')[0] + '-deleted-' + (new Date()).getTime()
