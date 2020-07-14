@@ -11,7 +11,7 @@ define ([
     'kbaseAuthenticatedWidget',
     'base/js/namespace',
     'kb_common/jsonRpc/dynamicServiceClient',
-    'kb_common/jsonRpc/genericClient',
+    'kb_service/client/workspace',
     'kb_common/html',
     'util/icon',
     'widgets/narrative_core/publicDataSources/workspaceDataSource',
@@ -27,7 +27,7 @@ define ([
     kbaseAuthenticatedWidget,
     Jupyter,
     DynamicServiceClient,
-    ServiceClient,
+    Workspace,
     html,
     Icon,
     WorkspaceDataSource,
@@ -37,7 +37,7 @@ define ([
     'use strict';
 
     function formatValue(value) {
-        if (typeof value === 'undefined' || 
+        if (typeof value === 'undefined' ||
             (typeof value === 'string' && value.length === 0)) {
             return '<span style="color: #AAA; font-weight: normal; font-style: italic">n/a</span>';
         } else {
@@ -46,16 +46,16 @@ define ([
     }
     function formatItem(item) {
         return [
-            '<span style="color: #AAA; font-weight: normal; font-style: italic">' + item.label + ':</span>', 
+            '<span style="color: #AAA; font-weight: normal; font-style: italic">' + item.label + ':</span>',
             '&nbsp;',
             formatValue(item.value)
         ].join('');
     }
 
-    // metadata is represented as an array of simple objects with 
+    // metadata is represented as an array of simple objects with
     // props label, value -or-
     // an array of the same.
-    // 
+    //
     function metadataToTable(metadata) {
         var $table = $('<table>')
             .css('font-size', '80%');
@@ -93,37 +93,6 @@ define ([
         return $table;
     }
 
-    // function metadataToRaggedTable(metadata) {
-    //     var $table = $('<div>')
-    //         .css('padding-bottom', '2px')
-    //         .css('font-size', '100%');
-
-    //     metadata.forEach(function (item) {
-    //         var $row;
-    //         var value;
-    //         if (item.value instanceof Array) {
-    //             value = item.value.map(function (item) {
-    //                 return formatItem(item);
-    //             }).join('&nbsp;&nbsp;&nbsp;');
-    //         } else {
-    //             value = formatValue(item.value);
-    //         }
-
-    //         $row = $('<div>')
-    //             .append($('<span>')
-    //                 .css('font-style', 'italic')
-    //                 .css('padding-right', '4px')
-    //                 .css('color', '#AAA')
-    //                 .text(item.label))
-    //             .append($('<span>')
-    //                 .css('font-weight', 'bold')
-    //                 .html(value));
-
-    //         $table.append($row);
-    //     });
-    //     return $table;
-    // }
-
     function renderTotals(found, total) {
         var $totals = $('<span>').addClass('kb-data-list-type');
         if (total === 0) {
@@ -141,7 +110,7 @@ define ([
                 .append($('<span>').text(' found out of '))
                 .append($('<span>').css('font-weight', 'bold').text(numeral(total).format('0,0')))
                 .append($('<span>').text(' available'));
-                
+
         } else {
             $totals
                 .append($('<span>').text(numeral(total).format('0,0')))
@@ -156,7 +125,7 @@ define ([
     by a previous failed attempt to save the object, return either:
     - null if the target name is not found in the object set
     - 1 if the target name was found, but no target names with a suffix
-    - the greatest of the failed suffix passed in or the greatest suffix in the data 
+    - the greatest of the failed suffix passed in or the greatest suffix in the data
       set, incremented by one.
     */
     function getNextAutoSuffix(targetName, narrativeObjects, nextSuffix) {
@@ -182,7 +151,7 @@ define ([
         // and automatic next suffix via the max suffix determined above.
         if (maxSuffix) {
             if (nextSuffix) {
-                // a previous attempt to copy failed due to the object already existing. 
+                // a previous attempt to copy failed due to the object already existing.
                 // We honor the maxSuffix found if greater, otherwise use this one.
                 if (maxSuffix > nextSuffix) {
                     return maxSuffix + 1;
@@ -223,10 +192,10 @@ define ([
             selectedItems: null,
             landingPageURL: Config.url('landing_pages'),
             provenanceViewerBaseURL: Config.url('provenance_view'),
-            ws_name: null
+            wsId: null,
         },
         token: null,
-        wsName: null,
+        wsId: null,
         searchUrlPrefix: Config.url('search'),
         loadingImage: Config.get('loading_gif'),
         workspaceUrl: Config.url('workspace'),
@@ -251,11 +220,9 @@ define ([
 
             this.data_icons = Config.get('icons').data;
             this.icon_colors = Config.get('icons').colors;
-            this.wsName = Jupyter.narrative.getWorkspaceName();
 
             this.dataSourceConfigs = DataSourceConfig.sources;
-            
-            this.loaded = false;            
+            this.loaded = false;
 
             return this;
         },
@@ -269,10 +236,10 @@ define ([
         },
 
         render: function() {
-            if ((!this.token) || (!this.wsName)) {
+            if ((!this.token) || (!this.options.wsId)) {
                 return;
             }
-            
+
             // load data the first render.
             if (!this.loaded) {
                 this.loadObjects();
@@ -293,14 +260,13 @@ define ([
 
             this.narrativeService = new DynamicServiceClient({
                 module: 'NarrativeService',
-                url: Config.url('service_wizard'), 
+                url: Config.url('service_wizard'),
                 token: this.token
             });
-            this.workspace = new ServiceClient({
-                module: 'Workspace',
-                url: Config.url('workspace'),
-                token: this.token
-            });
+            this.workspace = new Workspace(
+                Config.url('workspace'),
+                {token: this.token}
+            );
 
             var margin = {margin: '10px 0px 10px 0px'};
             var $typeInput = $('<select class="form-control">')
@@ -390,13 +356,13 @@ define ([
                     $filterInput.css('background-color', 'rgba(255, 245, 158, 1)');
                 } else {
                     $filterInput.css('background-color', 'rgba(209, 226, 255, 1)');
-                }            
+                }
             }
 
             // function inputFieldDirty() {
             //     if (inputFieldLastValue !== $filterInput.val()) {
             //         return true;
-            //     } 
+            //     }
             //     return false;
             // }
 
@@ -457,7 +423,7 @@ define ([
             this.resultFooter.removeClass('hide');
         },
 
-        searchAndRender: function(category, query) { 
+        searchAndRender: function(category, query) {
             if (query) {
                 query = query.trim();
                 if (query.length == 0) {
@@ -492,7 +458,7 @@ define ([
         },
 
         renderTotalsPanel: function () {
-            var $totals = renderTotals(this.currentFilteredResults, this.totalAvailable);                    
+            var $totals = renderTotals(this.currentFilteredResults, this.totalAvailable);
             this.totalPanel.html($totals);
         },
 
@@ -528,7 +494,7 @@ define ([
             // suss out whether we really need more...
             if (this.currentPage !== null && this.currentFilteredResults !== null) {
                 var maxPage = Math.ceil(this.currentFilteredResults / this.itemsPerPage);
-                if (this.currentPage >= maxPage) {                    
+                if (this.currentPage >= maxPage) {
                     return;
                 }
             }
@@ -540,13 +506,13 @@ define ([
 
         fetchFromDataSource: function(dataSource) {
             var _this = this;
-           
+
             var query = {
                 input: _this.currentQuery,
                 page: _this.currentPage,
             };
 
-            return dataSource.search(query);   
+            return dataSource.search(query);
         },
 
         getDataSource: function (dataSourceID) {
@@ -556,7 +522,7 @@ define ([
                 dataSource = this.currentDataSource;
             } else {
                 var dataSourceType = dataSourceTypes[dataSourceConfig.sourceType];
-               
+
                 var urls = Object.keys(dataSourceType.serviceDependencies).reduce(function (urls, key) {
                     var configKey = dataSourceType.serviceDependencies[key];
                     urls[key] = Config.url(configKey);
@@ -587,7 +553,7 @@ define ([
                         if (initial) {
                             _this.totalPanel.empty();
                             _this.resultPanel.empty();
-                            _this.resultsFooterMessage.empty();                
+                            _this.resultsFooterMessage.empty();
                         }
                         result.forEach(function (item, index) {
                             _this.addRow(dataSource, item, index);
@@ -678,8 +644,8 @@ define ([
             var $name = $('<span>')
                 .addClass('kb-data-list-name')
                 .append('<a href="'+landingPageLink+'" target="_blank">' + shortName + '</a>');
-            if (isShortened) { 
-                $name.tooltip({title:object.name, placement:'bottom'}); 
+            if (isShortened) {
+                $name.tooltip({title:object.name, placement:'bottom'});
             }
 
             // Mouseover toolbar
@@ -727,7 +693,7 @@ define ([
             //             .css('vertical-align', 'middle')
             //             .css('border-right', '1px rgba(200,200,200,0.6) solid')
             //             .append($logo))
-                        
+
             //         .append($('<td>')
             //             .css('padding-left', '4px')
             //             .css('padding-right', '15px')
@@ -777,7 +743,7 @@ define ([
             //     $logo
             //         .append($('<img>')
             //             .attr('src', dataSource.config.logoUrl)
-            //             .css('height', '32px'));                
+            //             .css('height', '32px'));
             // } else {
             Icon.buildDataIcon($logo, type);
             // }
@@ -848,7 +814,7 @@ define ([
             be here or should be a precondition (just let if fail otherwise.)
 
             the check for existence fo the object should not throw an error; the null value
-            means the object could not be read, and since we have read access to this narrative, 
+            means the object could not be read, and since we have read access to this narrative,
             that is the only possible error.
         */
 
@@ -859,7 +825,7 @@ define ([
 
             var type = 'KBaseGenomes.Genome';
 
-            // Determine whether the targetName already exists, or if 
+            // Determine whether the targetName already exists, or if
             // copies exist and if so the maximum suffix.
             // This relies upon the narrativeObjects being updated from the data list.
 
@@ -884,17 +850,17 @@ define ([
             // TODO: request ws api changes to support this. It is bad that we force a 500
             // error for the failure case (which is actually success!)
             // There really should be an "stat_object" call which provides object info
-            return this.workspace.callFunc('get_object_info_new', [{
+            return this.workspace.get_object_info_new({
                 objects: [{
-                    ref: this.wsName + '/' + correctedTargetName,
+                    ref: `${this.options.wsId}/${correctedTargetName}`,
                 }],
                 ignoreErrors: 1
-            }])
+            })
                 .spread(function(infos) {
                     // If an object already exists with this name, the attempt again,
                     // incrementing the suffix by 1. NB this will loop until a unique
                     // filename is found.
-                    if (infos[0] !== null) {
+                    if (infos !== null) {
                         return this.copy(object, targetName, thisBtn, suffix ? suffix + 1 : 1, tries ? tries + 1 : 1);
                     }
                     return this.copyFinal(object, correctedTargetName, thisBtn);
@@ -908,7 +874,7 @@ define ([
         copyFinal: function(object, targetName, thisBtn) {
             return this.narrativeService.callFunc('copy_object', [{
                 ref: object.workspaceReference.ref,
-                target_ws_name: this.wsName,
+                target_ws_id: this.options.wsId,
                 target_name: targetName
             }])
                 .spread(function() {

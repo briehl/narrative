@@ -459,7 +459,7 @@ define([
             // Setup the panels that are defined by widgets
             this.mineTab = new DataBrowser(minePanel, {$importStatus: importStatus, wsId: this.wsId, dataSet: 'mine'});
             this.sharedTab = new DataBrowser(sharedPanel, {$importStatus: importStatus, wsId: this.wsId, dataSet: 'shared'});
-            this.publicTab = new kbaseNarrativeSidePublicTab(publicPanel, {$importStatus: importStatus, ws_name: this.ws_name});
+            this.publicTab = new kbaseNarrativeSidePublicTab(publicPanel, {$importStatus: importStatus, wsId: this.wsId});
             this.exampleTab = new kbaseNarrativeExampleDataTab(examplePanel, {$importStatus: importStatus, ws_name: this.ws_name});
             if (Config.get('features').stagingDataViewer) {
                 this.stagingTab = new kbaseNarrativeStagingDataTab(stagingPanel).render();
