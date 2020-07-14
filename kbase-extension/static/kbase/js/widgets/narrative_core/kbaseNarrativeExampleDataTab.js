@@ -14,6 +14,7 @@ define ([
     'base/js/namespace',
     'util/display',
     'kbase/js/widgets/narrative_core/kbaseDataCard',
+    'common/runtime',
     'bootstrap',
 ], function (
     KBWidget,
@@ -25,7 +26,8 @@ define ([
     GenericClient,
     Jupyter,
     DisplayUtil,
-    kbaseDataCard
+    kbaseDataCard,
+    Runtime
 ) {
     'use strict';
     return KBWidget({
@@ -33,13 +35,13 @@ define ([
         parent : kbaseAuthenticatedWidget,
         version: '1.0.0',
         options: {
-            ws_name: null, // must be the WS name, not the WS Numeric ID
+            wsId: null,   // the numeric workspace id
             loadingImage: Config.get('loading_gif'),
             $importStatus: $('<div>')
         },
 
         ws: null,
-        narWs: null,
+        wsId: null,
         serviceClient: null,
 
         $mainPanel:null,
@@ -73,7 +75,7 @@ define ([
             this.icon_colors = icons.colors;
             this.showLoading();
 
-            this.narWs = Jupyter.narrative.getWorkspaceName();
+            this.wsId = this.options.wsId;
 
             $(document).on('deleteDataList.Narrative', $.proxy(function (event, data) {
                 this.loadedData[data] = false;
@@ -96,7 +98,7 @@ define ([
                 return;
             }
 
-            if (this.narWs) {
+            if (this.wsId) {
                 Promise.resolve(this.serviceClient.sync_call(
                     'NarrativeService.list_objects_with_sets',
                     [{
@@ -250,7 +252,6 @@ define ([
                     max_name_length: this.options.max_name_length,
                     object_info: object_info,
                     self: self,
-                    ws_name: self.narWs,
                     copyFunction: () => this.doObjectCopy(object_info[6] + '/' + object_info[0])
                 }]);
 
@@ -267,7 +268,7 @@ define ([
                 'NarrativeService.copy_object',
                 [{
                     ref: objRef,
-                    target_ws_name: this.narWs,
+                    target_ws_id: this.wsId,
                 }]
             );
         },

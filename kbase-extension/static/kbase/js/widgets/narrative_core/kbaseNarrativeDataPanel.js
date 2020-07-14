@@ -89,9 +89,7 @@ define([
             workspaceURL: Config.url('workspace'),
             lp_url: Config.url('landing_pages'),
             container: null,
-            ws_name: null,
         },
-        ws_name: null,
         // Constants
         dataListWidget: null,
         $myDataHeader: null,
@@ -104,7 +102,6 @@ define([
         init: function (options) {
             this._super(options);
 
-            this.ws_name = Jupyter.narrative.getWorkspaceName();
             this.wsId = Runtime.make().workspaceId();
 
             var icons = Config.get('icons');
@@ -236,7 +233,7 @@ define([
          */
         loggedInCallback: function (event, auth) {
             this.isLoggedIn = true;
-            if (this.ws_name) {
+            if (this.wsId) {
                 this.tabMapping = [
                     {
                         widget : this.mineTab,
@@ -289,7 +286,6 @@ define([
          */
         loggedOutCallback: function () {
             this.isLoggedIn = false;
-            this.ws_name = null;
             return this;
         },
         /**
@@ -460,7 +456,7 @@ define([
             this.mineTab = new DataBrowser(minePanel, {$importStatus: importStatus, wsId: this.wsId, dataSet: 'mine'});
             this.sharedTab = new DataBrowser(sharedPanel, {$importStatus: importStatus, wsId: this.wsId, dataSet: 'shared'});
             this.publicTab = new kbaseNarrativeSidePublicTab(publicPanel, {$importStatus: importStatus, wsId: this.wsId});
-            this.exampleTab = new kbaseNarrativeExampleDataTab(examplePanel, {$importStatus: importStatus, ws_name: this.ws_name});
+            this.exampleTab = new kbaseNarrativeExampleDataTab(examplePanel, {$importStatus: importStatus, wsId: this.wsId});
             if (Config.get('features').stagingDataViewer) {
                 this.stagingTab = new kbaseNarrativeStagingDataTab(stagingPanel).render();
             }
