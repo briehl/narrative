@@ -3,6 +3,7 @@
  */
 
 define([
+    'jquery',
     'bluebird',
     'narrativeConfig',
     'kbase-generic-client-api',
@@ -11,6 +12,7 @@ define([
     'kbase/js/widgets/narrative_core/kbaseDataCard',
     'api/dataProvider'
 ], function(
+    $,
     Promise,
     Config,
     GenericClient,
@@ -53,9 +55,9 @@ define([
             this.$scrollPanel = $('<div>').css({height: '550px', 'overflow-x': 'hidden', 'overflow-y': 'auto'});
             node.append(this.loadingDiv.loader)
                 .append(this.$contentPanel
-                        .append(this.$filterRow)
-                        .append(this.$messageHeader)
-                        .append(this.$scrollPanel));
+                    .append(this.$filterRow)
+                    .append(this.$messageHeader)
+                    .append(this.$scrollPanel));
             this.setLoading(true);
 
             this.serviceClient = new GenericClient(
@@ -209,7 +211,7 @@ define([
                 simple_types: 0,
                 ignore_narratives: 1,
                 limit: OBJECT_COUNT_LIMIT
-            }
+            };
             Object.assign(params, otherParams);
             // params = {...params, ...otherParams};
             return Promise.resolve(this.serviceClient.sync_call(command, [params]))
@@ -304,7 +306,7 @@ define([
         buildWorkspaceFilter() {
             // create workspace filter
             const wsInput = $('<select class="form-control kb-import-filter">')
-                            .append('<option>All Narratives...</option>');
+                .append('<option>All Narratives...</option>');
             const sortedWsKeys = Object.keys(this.workspaces).sort((a, b) => {
                 return this.workspaces[a].display.localeCompare(this.workspaces[b].display);
             });
@@ -332,8 +334,8 @@ define([
         buildTypeFilter() {
             // create type filter
             const typeInput = $('<select class="form-control kb-import-filter">')
-                              .append('<option>All types...</option>'),
-                  typeFilter = $('<div class="col-sm-3">').append(typeInput);
+                    .append('<option>All types...</option>'),
+                typeFilter = $('<div class="col-sm-3">').append(typeInput);
 
             Object.keys(this.types).sort().forEach(t => {
                 const $option = $('<option data-type="' + t + '">' +
