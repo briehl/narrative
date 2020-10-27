@@ -11,7 +11,7 @@ module.exports = function (config) {
                 failFast: false,
                 DEFAULT_TIMEOUT_INTERVAL: 20000
             },
-            requireJsShowNoTimestampsError: '^(?!.*(^/narrative/static/))',
+            requireJsShowNoTimestampsError: '^(?!.*(^/narrative/))',
             clearContext: false
         },
         plugins: [
@@ -29,6 +29,7 @@ module.exports = function (config) {
             'kbase-extension/static/kbase/js/api/!(*[Cc]lient*|Catalog|KBaseFeatureValues|NarrativeJobServiceWrapper|NewWorkspace)*.js': ['coverage'],
             'kbase-extension/static/kbase/js/api/RestAPIClient.js': ['coverage'],
             'nbextensions/appcell2/widgets/tabs/*.js': ['coverage'],
+            'kbase-extension/static/kbase/js/*.js': ['coverage']
         },
         files: [
             'kbase-extension/static/narrative_paths.js',
